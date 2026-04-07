@@ -1,186 +1,178 @@
-# 🎯 Customer Inquiry Classifier
+🚀 Customer Inquiry Classifier (Production-Ready NLP System)
 
-> **Production-grade NLP system** that routes customer support queries into 7 categories with calibrated confidence scores, keyword explainability, and a REST API — all in under 15ms.
 
-[![CI](https://github.com/Yashsh101/customer-inquiry-classifier/actions/workflows/ci.yml/badge.svg)](https://github.com/Yashsh101/customer-inquiry-classifier/actions)
-![Python](https://img.shields.io/badge/Python-3.11-blue)
-![scikit-learn](https://img.shields.io/badge/scikit--learn-1.5-orange)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.35-red)
-![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
----
 
-## 🚀 Live Demo
 
-| Interface | URL |
-|-----------|-----|
-| Streamlit App | [customer-inquiry-classifier.streamlit.app](https://share.streamlit.io) |
-| REST API Docs | `/docs` (Swagger UI) |
 
----
 
-## 📊 Model Performance
 
-| Metric | Score |
-|--------|-------|
-| **Test Accuracy** | **93.4%** |
-| **Weighted F1** | **93.2%** |
-| **CV Accuracy (5-fold)** | **92.8% ± 0.6%** |
-| **Inference latency** | **< 15 ms** |
 
-<details>
-<summary>Per-category breakdown</summary>
 
-| Category | Precision | Recall | F1 |
-|----------|-----------|--------|----|
-| Billing | 0.95 | 0.94 | 0.94 |
-| Technical Support | 0.93 | 0.95 | 0.94 |
-| Product Inquiry | 0.91 | 0.92 | 0.91 |
-| Shipping | 0.95 | 0.93 | 0.94 |
-| Refund / Return | 0.94 | 0.93 | 0.93 |
-| Account Management | 0.92 | 0.91 | 0.92 |
-| General Inquiry | 0.90 | 0.92 | 0.91 |
 
+
+⚡ A production-grade NLP system that classifies customer support inquiries into 7 actionable categories with calibrated confidence scores, keyword-level explainability, and sub-15ms latency.
+
+🌐 Live Demo
+🎯 Streamlit App: https://customer-inquiry-classifier.streamlit.app
+📡 API Docs (Swagger): /docs
+🧠 Problem Statement
+
+Customer support teams handle thousands of unstructured queries daily:
+
+Refund requests
+Billing issues
+Technical problems
+Account-related queries
+
+Manual triaging is:
+
+❌ Slow
+❌ Inconsistent
+❌ Hard to scale
+
+👉 This system automates classification in milliseconds, enabling:
+
+Faster routing
+Reduced support load
+Improved customer experience
+✨ Key Features
+🧠 Multi-class NLP classification (7 real-world categories)
+⚡ Ultra-fast inference (< 15 ms)
+📊 Calibrated confidence scores (probability-aware predictions)
+🔍 Keyword-level explainability (TF-IDF insights)
+🌐 FastAPI production-ready backend
+🎨 Streamlit interactive UI
+🧪 18/18 pytest unit tests
+🔁 CI pipeline with GitHub Actions
+📦 Model persistence with .joblib
+🐳 Dockerized deployment
+📊 Model Performance
+Metric	Score
+Test Accuracy	93.4%
+Weighted F1	93.2%
+CV Accuracy (5-fold)	92.8% ± 0.6%
+Inference Latency	< 15 ms
+<details> <summary>Per-category breakdown</summary>
+Category	Precision	Recall	F1
+Billing	0.95	0.94	0.94
+Technical Support	0.93	0.95	0.94
+Product Inquiry	0.91	0.92	0.91
+Shipping	0.95	0.93	0.94
+Refund / Return	0.94	0.93	0.93
+Account Management	0.92	0.91	0.92
+General Inquiry	0.90	0.92	0.91
 </details>
-
----
-
-## 🏗️ Architecture
-
-```
+🏗️ System Architecture
 Input Text
     │
     ▼
-TextPreprocessor (lowercase → URL strip → lemmatize → stopword removal)
+Text Preprocessing
+(lowercase → clean → lemmatize → stopword removal)
     │
     ▼
-TF-IDF Vectorizer (8k features, 1–3 ngrams, sublinear TF)
+TF-IDF Vectorizer
+(8k features, 1–3 ngrams, sublinear TF)
     │
     ▼
 Soft Voting Ensemble
-    ├── CalibratedLinearSVC  (Platt scaling)
-    └── LogisticRegression   (multinomial)
+├── Calibrated Linear SVC (Platt scaling)
+└── Logistic Regression (multinomial)
     │
     ▼
-PredictionResult
-  ├── category + label
-  ├── confidence (calibrated probability)
-  ├── all_probabilities (all 7 classes)
-  ├── top_keywords (TF-IDF explainability)
-  └── latency_ms
-```
+Prediction Output
+├── category
+├── confidence score
+├── class probabilities
+├── top keywords
+└── latency (ms)
+🖼️ Demo
+🔹 Streamlit Interface
 
----
+🔹 Prediction Output
 
-## 📁 Project Structure
+🔹 API (Swagger UI)
 
-```
+📁 Project Structure
 customer-inquiry-classifier/
 ├── app/
-│   ├── classifier.py       # Core ML: preprocessing, training, prediction
-│   └── api.py              # FastAPI REST API
-├── models/                 # Saved model artifacts (.joblib)
+│   ├── classifier.py       # ML pipeline (training + inference)
+│   └── api.py              # FastAPI backend
+├── models/                 # Saved model artifacts
 ├── tests/
-│   └── test_classifier.py  # 13 pytest unit tests
+│   └── test_classifier.py  # Unit tests
 ├── .github/workflows/
-│   └── ci.yml              # GitHub Actions CI
-├── streamlit_app.py        # Interactive demo UI
-├── Dockerfile              # Container for deployment
+│   └── ci.yml              # CI pipeline
+├── streamlit_app.py        # UI
+├── Dockerfile
 ├── requirements.txt
 └── README.md
-```
-
----
-
-## ⚡ Quick Start
-
-### 1. Clone & Install
-```bash
+⚡ Quick Start
+1. Clone & Install
 git clone https://github.com/Yashsh101/customer-inquiry-classifier.git
 cd customer-inquiry-classifier
 pip install -r requirements.txt
-```
-
-### 2. Run the Streamlit Demo
-```bash
+2. Run Streamlit App
 streamlit run streamlit_app.py
-```
-
-### 3. Run the REST API
-```bash
+3. Run API
 uvicorn app.api:app --reload
-# Visit http://localhost:8000/docs
-```
 
-### 4. Run Tests
-```bash
-pytest tests/ -v
-```
+👉 Visit: http://localhost:8000/docs
 
-### 5. Docker
-```bash
+4. Run Tests
+pytest -v
+5. Docker
 docker build -t inquiry-classifier .
 docker run -p 8000:8000 inquiry-classifier
-```
-
----
-
-## 🔌 API Reference
-
-### `POST /predict`
-```bash
+🔌 API Example
+POST /predict
 curl -X POST http://localhost:8000/predict \
-  -H "Content-Type: application/json" \
-  -d '{"text": "I was charged twice this month on my credit card"}'
-```
-
-```json
+-H "Content-Type: application/json" \
+-d '{"text": "I was charged twice this month"}'
+Response
 {
   "category": "billing",
-  "label": "💳 Billing",
   "confidence": 0.9621,
-  "all_probabilities": {
-    "billing": 0.9621,
-    "technical_support": 0.0089,
-    ...
-  },
   "latency_ms": 8.3,
   "top_keywords": ["charged", "credit", "month", "twice"]
 }
-```
+🧠 Key Design Decisions
+Decision	Reason
+Ensemble (SVC + LR)	Combines accuracy + calibrated probabilities
+TF-IDF with n-grams	Captures phrases like "charged twice"
+Platt scaling	Converts SVC scores into meaningful probabilities
+Stratified CV	Ensures reliable generalization
+Explainability	Builds trust in real-world usage
+🛠️ Tech Stack
 
-### `POST /predict/batch`
-```bash
-curl -X POST http://localhost:8000/predict/batch \
-  -H "Content-Type: application/json" \
-  -d '{"texts": ["My app crashes", "Where is my refund?"]}'
-```
+Python · scikit-learn · FastAPI · Streamlit · Plotly · pytest · Docker · GitHub Actions
 
-### `GET /health` · `GET /metrics` · `GET /categories`
+🎯 Why This Project Stands Out
 
----
+This is not a basic ML notebook.
 
-## 🧠 Key Design Decisions
+It demonstrates:
 
-| Decision | Reason |
-|----------|--------|
-| **Calibrated SVC + LR ensemble** | Robust predictions; SVC has best accuracy, LR gives clean probabilities; ensemble beats both |
-| **Sublinear TF-IDF + trigrams** | Captures phrases like "charged twice" or "not working" that unigrams miss |
-| **Platt scaling calibration** | Raw SVC scores aren't probabilities; calibration gives meaningful confidence values |
-| **Stratified 5-fold CV** | Single train/test split can be lucky — CV gives honest generalization estimate |
-| **Keyword explainability** | Shows *why* a classification was made; critical for support team trust |
+End-to-end ML system (model + API + UI)
+Production-ready architecture
+Deployment & persistence
+Testing + CI pipeline
 
----
+👉 Built with real-world engineering practices used in industry.
 
-## 🛠️ Tech Stack
+🚀 Future Improvements
+Transformer-based models (BERT)
+Multi-language support
+Real-time inference pipeline
+Model monitoring & drift detection
+Database integration
+👨‍💻 Author
 
-`Python` · `scikit-learn` · `NLTK` · `FastAPI` · `Streamlit` · `Plotly` · `Docker` · `GitHub Actions`
+Yash Sharma
+LinkedIn
+ · GitHub
 
----
+⭐ Support
 
-## 👨‍💻 Author
-
-**Yash Sharma** · [LinkedIn](https://www.linkedin.com/in/yash-sharma-262923183) · [GitHub](https://github.com/Yashsh101)
-
-*Built as a production-ready NLP portfolio project for AI/ML roles.*
+If you found this project useful, consider giving it a ⭐ on GitHub.
+It helps improve visibility and reach.
