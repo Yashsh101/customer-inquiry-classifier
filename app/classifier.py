@@ -99,7 +99,8 @@ ROUTE_MAPPING = {
 
 CAT2ID = {c: i for i, c in enumerate(CATEGORIES)}
 ID2CAT = {v: k for k, v in CAT2ID.items()}
-MODEL_PATH = Path("models/classifier_v2.joblib")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+MODEL_PATH = PROJECT_ROOT / "models/classifier_v2.joblib"
 
 
 @dataclass

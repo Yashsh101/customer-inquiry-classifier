@@ -29,7 +29,17 @@ llm_fallback: Optional[OpenAILLMFallback] = None
 _request_count = 0
 _start_time = time.time()
 
-ROUTING_CONF_THRESHOLD = float(os.getenv("ROUTING_CONF_THRESHOLD", "0.75"))
+def _read_float_env(name: str, default: float) -> float:
+    raw = os.getenv(name, str(default))
+    try:
+        value = float(raw)
+    except ValueError:
+        logger.warning("Invalid %s=%s. Falling back to %s", name, raw, default)
+        value = default
+    return max(0.0, min(1.0, value))
+
+
+ROUTING_CONF_THRESHOLD = _read_float_env("ROUTING_CONF_THRESHOLD", 0.75)
 ENABLE_LLM_FALLBACK = os.getenv("ENABLE_LLM_FALLBACK", "false").lower() in {"1", "true", "yes"}
 COMPARE_WITH_LLM = os.getenv("COMPARE_WITH_LLM", "false").lower() in {"1", "true", "yes"}
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")

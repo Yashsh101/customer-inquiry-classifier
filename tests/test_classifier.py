@@ -7,10 +7,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pytest
-import pandas as pd
 from app.classifier import (
     CustomerInquiryClassifier, DataGenerator, TextPreprocessor,
-    CATEGORIES, CAT2ID, ID2CAT,
+    CATEGORIES, CAT2ID,
 )
 
 

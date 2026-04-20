@@ -113,6 +113,12 @@ curl -X POST http://localhost:8000/predict \
 
 ## 🤖 Optional GPT Fallback Setup
 
+Install OpenAI SDK only if you plan to enable fallback:
+
+```bash
+pip install openai
+```
+
 Set environment variables before starting API:
 
 ```bash
@@ -133,10 +139,13 @@ Fallback behavior:
 ## 🛠️ Deployment
 - **Streamlit demo:** https://customer-inquiry-classifier-1.streamlit.app/
 - **API docs (local/deployed):** `/docs`
+- Production deployment template is included in `render.yaml` (API + Streamlit services).
+- Streamlit runtime config is included in `.streamlit/config.toml`.
 
 For Render/Railway deployment:
 - ensure `requirements.txt` installed,
-- boot command like `uvicorn app.api:app --host 0.0.0.0 --port $PORT`,
+- use `uvicorn app.api:app --host 0.0.0.0 --port $PORT` for API,
+- for Streamlit use `streamlit run streamlit_app.py --server.port $PORT --server.address 0.0.0.0`,
 - persist `/models` or allow clean retrain on startup.
 
 ---

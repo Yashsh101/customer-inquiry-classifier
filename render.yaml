@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: customer-inquiry-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.api:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ROUTING_CONF_THRESHOLD
+        value: "0.75"
+      - key: ENABLE_LLM_FALLBACK
+        value: "false"
+
+  - type: web
+    name: customer-inquiry-streamlit
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run streamlit_app.py --server.port $PORT --server.address 0.0.0.0
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: API_BASE_URL
+        fromService:
+          type: web
+          name: customer-inquiry-api
+          property: url
