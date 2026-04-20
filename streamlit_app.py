@@ -127,6 +127,7 @@ def render_prediction(result, threshold):
         f'<h3 style="margin:0">{icon} {result.label}</h3>'
         f'<p style="color:#374151;margin:4px 0 0 0">Confidence: <strong>{result.confidence:.1%}</strong> · '
         f'Latency: <strong>{result.latency_ms:.1f} ms</strong></p>'
+        f'<p style="color:#374151;margin:4px 0 0 0">Decision: <strong>{result.routing_decision}</strong> · Team: <strong>{result.routed_team}</strong></p>'
         f'</div>',
         unsafe_allow_html=True,
     )
@@ -188,7 +189,7 @@ if mode == "Single Query":
         st.markdown("### 📈 Result")
         if classify_btn and user_text.strip():
             with st.spinner("Classifying …"):
-                result = clf.predict(user_text)
+                result = clf.predict(user_text, confidence_threshold=confidence_threshold)
             render_prediction(result, confidence_threshold)
         elif classify_btn:
             st.info("Please enter some text first.")
@@ -214,7 +215,7 @@ else:
             st.error("Maximum 50 inquiries per batch.")
         else:
             with st.spinner(f"Classifying {len(lines)} inquiries …"):
-                results = clf.predict_batch(lines)
+                results = clf.predict_batch(lines, confidence_threshold=confidence_threshold)
 
             rows = [
                 {

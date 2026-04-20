@@ -7,3 +7,4 @@ pandas
 joblib
 streamlit
 plotly
+openai>=1.40.0
