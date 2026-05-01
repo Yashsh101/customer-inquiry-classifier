@@ -1,171 +1,162 @@
-# 🚀 Customer Inquiry Classifier (Production-Grade NLP Routing)
+# Customer Inquiry Classifier
 
-A recruiter-ready AI/ML project for **customer support automation**: classify incoming support text, route high-confidence tickets automatically, and send uncertain/ambiguous cases for human review.
+Production-style NLP routing system that classifies customer support messages, estimates confidence, and sends uncertain cases to human review.
 
-## 🌍 Business Problem
-Support teams lose time triaging repetitive tickets (billing, tech, shipping, refunds). This project automates first-line routing with confidence-aware decisions to reduce SLA delays, improve consistency, and allow agents to focus on complex cases.
+## Live Demo
 
----
+- Streamlit demo: https://customer-inquiry-classifier-1.streamlit.app/
+- API demo: `Coming soon - deploy FastAPI service on Render`
+- Local API docs: `http://localhost:8000/docs`
 
-## ✅ What’s New (v3)
-- **Confidence-Based Routing (core upgrade):**
-  - Uses `predict_proba` for calibrated class confidence.
-  - **High confidence** → `auto_route` to business queue.
-  - **Low confidence** → `human_review` (or optional LLM fallback route).
-- **More realistic synthetic dataset:**
-  - typos/noise, short + long queries,
-  - tone variation (angry/urgent/polite),
-  - ambiguous and multi-intent queries,
-  - optional Hinglish-style expressions.
-- **Advanced ML layer (Option A):**
-  - Optional **OpenAI GPT fallback** for low-confidence cases.
-  - ML prediction + optional LLM prediction comparison exposed in API.
+## Problem
 
----
+Support teams spend time manually routing repetitive customer messages across billing, shipping, refunds, technical support, and account queues. This project automates first-pass triage while keeping a human-review path for low-confidence or ambiguous messages.
 
-## 🧠 System Architecture
+## Features
 
-```text
-Incoming Inquiry
-   │
-   ▼
-TextPreprocessor
-(lowercase, cleanup, tokenize, lemmatize, stopwords)
-   │
-   ▼
-TF-IDF (1-3 grams, max 8k)
-   │
-   ▼
-Soft Voting Ensemble
-  ├─ Calibrated LinearSVC (sigmoid calibration)
-  └─ Logistic Regression
-   │
-   ▼
-Confidence Router
-  ├─ confidence >= threshold → auto_route to queue
-  └─ confidence < threshold  → human_review
-                             └─ optional GPT fallback route
+- Synthetic customer-inquiry generator with noisy, short, long, and ambiguous examples.
+- Text preprocessing with graceful offline fallback.
+- TF-IDF features over word and phrase patterns.
+- Soft-voting ensemble with calibrated confidence.
+- Confidence-based routing: auto-route high-confidence messages, escalate low-confidence ones.
+- Optional OpenAI fallback for low-confidence cases.
+- FastAPI inference API and Streamlit demo UI.
+- Tests, CI, Dockerfile, and Render blueprint.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    M[Customer Message] --> P[Preprocessing]
+    P --> V[TF-IDF Vectorizer]
+    V --> E[Calibrated Ensemble]
+    E --> C[Confidence Router]
+    C -->|High confidence| Q[Business Queue]
+    C -->|Low confidence| H[Human Review]
+    C -->|Optional| L[LLM Fallback]
 ```
 
----
+## Tech Stack
 
-## 🧪 ML Approach
-- **Baseline/primary model:** TF-IDF + calibrated SVC + LR soft voting.
-- **Feature engineering:** word n-grams, sublinear TF-IDF, preprocessing.
-- **Evaluation:** holdout accuracy/F1 + 5-fold stratified CV.
-- **Explainability:** top TF-IDF keywords surfaced for each prediction.
+| Layer | Tools |
+| --- | --- |
+| ML | scikit-learn, TF-IDF, LinearSVC, Logistic Regression |
+| API | FastAPI, Pydantic, Uvicorn |
+| UI | Streamlit, Plotly |
+| Packaging | Joblib model artifact |
+| Deployment | Docker, Render, Streamlit Cloud |
+| Quality | Pytest, Ruff, GitHub Actions |
 
----
+## Project Structure
 
-## 📊 Results Snapshot
-(Results vary slightly run-to-run because of synthetic data generation.)
+```text
+customer-inquiry-classifier/
+├── app/
+│   ├── api.py            # FastAPI app
+│   └── classifier.py     # data generation, preprocessing, model, routing
+├── models/               # trained model artifact
+├── scripts/              # utility package placeholder
+├── tests/                # classifier tests
+├── streamlit_app.py      # demo UI
+├── MODEL_CARD.md
+├── DATASET_CARD.md
+├── DEPLOYMENT.md
+└── render.yaml
+```
 
-- Strong weighted F1 and accuracy for support-ticket category routing.
-- Fast inference suitable for real-time API use.
-- Confidence routing adds operational safety by preventing blind automation.
+## Setup
 
-> Dataset note: training data is **synthetically generated for privacy** and demo reproducibility; no customer PII is used.
-
----
-
-## 🔀 Confidence Routing Logic
-- `ROUTING_CONF_THRESHOLD` (default: `0.75`) controls automation aggressiveness.
-- API returns:
-  - `confidence`
-  - `routing_decision` (`auto_route`, `human_review`, `llm_fallback_route`)
-  - `routed_team`
-  - `requires_human_review`
-  - optional `llm_prediction`, `llm_explanation`
-
----
-
-## 🔌 API Usage
-
-### Local run
 ```bash
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
+cp .env.example .env
+```
+
+Run the API:
+
+```bash
 uvicorn app.api:app --reload
 ```
 
-### Predict example
+Run the UI:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+## Environment Variables
+
+| Variable | Purpose |
+| --- | --- |
+| `ROUTING_CONF_THRESHOLD` | Confidence threshold for auto-routing |
+| `ENABLE_LLM_FALLBACK` | Enables optional LLM fallback for low-confidence cases |
+| `COMPARE_WITH_LLM` | Compares ML result with optional LLM result |
+| `OPENAI_API_KEY` | Required only when LLM fallback is enabled |
+| `OPENAI_MODEL` | LLM fallback model name |
+| `API_BASE_URL` | Streamlit UI API target |
+
+## Usage and API
+
+Health:
+
+```bash
+curl http://localhost:8000/health
+```
+
+Single prediction:
+
 ```bash
 curl -X POST http://localhost:8000/predict \
   -H "Content-Type: application/json" \
-  -d '{"text": "I was charged twice this month and want a refund"}'
+  -d '{"text":"I was charged twice and need a refund."}'
 ```
 
-### Example response
-```json
-{
-  "category": "billing",
-  "final_category": "billing",
-  "label": "💳 Billing",
-  "confidence": 0.8421,
-  "confidence_threshold": 0.75,
-  "routing_decision": "auto_route",
-  "routed_team": "billing_queue",
-  "requires_human_review": false,
-  "llm_fallback_used": false
-}
-```
-
----
-
-## 🤖 Optional GPT Fallback Setup
-
-Install OpenAI SDK only if you plan to enable fallback:
+Batch prediction:
 
 ```bash
-pip install openai
+curl -X POST http://localhost:8000/predict/batch \
+  -H "Content-Type: application/json" \
+  -d '{"texts":["My app keeps crashing","Where is my package?"]}'
 ```
 
-Set environment variables before starting API:
+## ML Approach
 
-```bash
-export ENABLE_LLM_FALLBACK=true
-export OPENAI_API_KEY=your_key_here
-export OPENAI_MODEL=gpt-4.1-mini
-# optional
-export COMPARE_WITH_LLM=true
-export ROUTING_CONF_THRESHOLD=0.75
-```
+The model is a classical NLP pipeline:
 
-Fallback behavior:
-- If ML confidence is low, API can query GPT and return `llm_fallback_route` with `final_category` from LLM.
-- If `COMPARE_WITH_LLM=true`, it can compare ML vs LLM even for high-confidence traffic.
+1. Generate and normalize synthetic support-ticket text.
+2. Extract TF-IDF features from unigrams, bigrams, and trigrams.
+3. Train a soft-voting ensemble with calibrated probabilities.
+4. Return the predicted category, confidence, routing decision, queue, and keyword explanations.
+5. Escalate uncertain cases instead of pretending the model is always right.
 
----
+## Evaluation
 
-## 🛠️ Deployment
-- **Streamlit demo:** https://customer-inquiry-classifier-1.streamlit.app/
-- **API docs (local/deployed):** `/docs`
-- Production deployment template is included in `render.yaml` (API + Streamlit services).
-- Streamlit runtime config is included in `.streamlit/config.toml`.
+The repo includes tests for model training and inference behavior. For production evaluation, track:
 
-For Render/Railway deployment:
-- ensure `requirements.txt` installed,
-- use `uvicorn app.api:app --host 0.0.0.0 --port $PORT` for API,
-- for Streamlit use `streamlit run streamlit_app.py --server.port $PORT --server.address 0.0.0.0`,
-- persist `/models` or allow clean retrain on startup.
+- Macro F1 across categories.
+- Per-class recall for urgent queues such as billing and refund/return.
+- Confusion matrix across the seven support categories.
+- Low-confidence escalation rate.
+- API latency for `/predict` and `/predict/batch`.
 
----
+See `MODEL_CARD.md` and `DATASET_CARD.md` for limitations and dataset notes.
 
-## 📁 Project Structure
+## Deployment
 
-```text
-app/
-  classifier.py   # model, confidence router, realistic data generation, GPT fallback adapter
-  api.py          # FastAPI endpoints + startup/retrain behavior
-tests/
-  test_classifier.py
-streamlit_app.py
-requirements.txt
-Dockerfile
-```
+- Streamlit UI: Streamlit Community Cloud.
+- FastAPI API: Render or Railway using `render.yaml` or the Dockerfile.
+- Vercel is not recommended for the FastAPI backend.
 
----
+See `DEPLOYMENT.md` for deployment steps.
 
-## 💼 Recruiter Pitch (30 seconds)
-- Solves a real support-ops bottleneck (ticket triage automation).
-- Demonstrates ML + backend + explainability + confidence safety + LLM integration.
-- Production-minded design: startup resilience, API contracts, tests, deployability.
+## Roadmap
+
+- Add a saved evaluation report generated during training.
+- Add confusion matrix image after each model refresh.
+- Replace synthetic-only data with anonymized real support tickets if available.
+- Add monitoring for drift in incoming message patterns.
+
+## Author
+
+Yash Sharma - MCA AI/ML student focused on NLP, ML systems, GenAI, and backend AI services.
