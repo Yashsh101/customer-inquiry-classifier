@@ -5,8 +5,14 @@ Production-style NLP routing system that classifies customer support messages, e
 ## Live Demo
 
 - Streamlit demo: https://customer-inquiry-classifier-1.streamlit.app/
-- API demo: `Coming soon - deploy FastAPI service on Render`
+- API demo: Demo coming soon
 - Local API docs: `http://localhost:8000/docs`
+
+## Visual Proof
+
+![Customer inquiry classifier demo placeholder](docs/images/customer-classifier-placeholder.svg)
+
+Replace this placeholder with a real Streamlit/API screenshot after the next demo capture.
 
 ## Problem
 
@@ -55,7 +61,7 @@ customer-inquiry-classifier/
 │   ├── api.py            # FastAPI app
 │   └── classifier.py     # data generation, preprocessing, model, routing
 ├── models/               # trained model artifact
-├── scripts/              # utility package placeholder
+├── scripts/              # utility package
 ├── tests/                # classifier tests
 ├── streamlit_app.py      # demo UI
 ├── MODEL_CARD.md
