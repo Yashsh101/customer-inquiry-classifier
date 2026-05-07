@@ -4,6 +4,7 @@ const classifyBtn = document.querySelector("#classifyBtn");
 const batchBtn = document.querySelector("#batchBtn");
 const batchResult = document.querySelector("#batchResult");
 const healthStatus = document.querySelector("#healthStatus");
+const inquiryText = document.querySelector("#inquiryText");
 
 const labels = {
   billing: "Billing",
@@ -82,9 +83,16 @@ function renderPrediction(result) {
   `;
 }
 
+document.querySelectorAll(".sample").forEach((button) => {
+  button.addEventListener("click", () => {
+    inquiryText.value = button.dataset.sample || "";
+    inquiryText.focus();
+  });
+});
+
 singleForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const text = document.querySelector("#inquiryText").value.trim();
+  const text = inquiryText.value.trim();
   if (text.length < 3) {
     renderError(singleResult, "Enter at least 3 characters before classifying.");
     return;

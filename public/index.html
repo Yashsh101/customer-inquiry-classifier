@@ -7,16 +7,33 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
+    <div class="ambient"></div>
     <main class="shell">
+      <nav class="topbar" aria-label="Project">
+        <div class="brand">
+          <span class="brand-mark">CI</span>
+          <span>Classifier Ops</span>
+        </div>
+        <a class="live-link" href="/api/health">API status</a>
+      </nav>
+
       <section class="intro">
         <div>
-          <p class="eyebrow">FastAPI + ML routing</p>
+          <p class="eyebrow">FastAPI + Vercel + ML routing</p>
           <h1>Customer Inquiry Classifier</h1>
           <p class="lede">
-            Classify support messages, inspect confidence, and route high-certainty tickets to the right queue.
+            A production-style triage console for classifying support messages, reading model confidence,
+            and routing high-certainty tickets to the right team.
           </p>
         </div>
         <div class="status" id="healthStatus">Checking API...</div>
+      </section>
+
+      <section class="stats" aria-label="Model highlights">
+        <div><span>7</span><p>support categories</p></div>
+        <div><span>&lt;1s</span><p>typical inference</p></div>
+        <div><span>ML</span><p>confidence routing</p></div>
+        <div><span>Vercel</span><p>serverless deploy</p></div>
       </section>
 
       <section class="workspace">
@@ -33,6 +50,11 @@
             maxlength="2000"
             placeholder="I was charged twice this month and the app keeps crashing when I try to request a refund."
           ></textarea>
+          <div class="samples" aria-label="Sample inquiries">
+            <button type="button" class="sample" data-sample="I was charged twice this month and need a refund immediately.">Billing</button>
+            <button type="button" class="sample" data-sample="The mobile app crashes every time I try to log in.">Technical</button>
+            <button type="button" class="sample" data-sample="My package has not arrived and tracking has not updated.">Shipping</button>
+          </div>
           <p class="hint">3-2000 characters. Low-confidence cases are flagged for review.</p>
         </form>
 
@@ -43,7 +65,11 @@
               <p>Prediction, confidence, routing decision, and top signals.</p>
             </div>
           </div>
-          <div id="singleResult" class="empty">Results will appear here after classification.</div>
+          <div id="singleResult" class="empty">
+            <span class="empty-icon">→</span>
+            <strong>Ready for a ticket.</strong>
+            <p>Classification, routing decision, latency, and signals will appear here.</p>
+          </div>
         </section>
       </section>
 

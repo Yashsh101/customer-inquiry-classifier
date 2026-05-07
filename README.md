@@ -1,6 +1,8 @@
 # Customer Inquiry Classifier
 
-Production-ready customer support inquiry classifier deployed on Vercel with a FastAPI backend and a minimal responsive frontend.
+Production-ready customer support inquiry classifier deployed on Vercel with a FastAPI backend and a polished responsive frontend.
+
+Live app: https://customer-inquiry-classifier.vercel.app/
 
 ## What It Does
 
