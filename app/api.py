@@ -9,6 +9,8 @@ from typing import Optional
 
 from fastapi import APIRouter, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
 from app.classifier import (
@@ -17,6 +19,7 @@ from app.classifier import (
     CATEGORY_LABELS,
     MODEL_PATH,
     OpenAILLMFallback,
+    PROJECT_ROOT,
 )
 
 logger = logging.getLogger(__name__)
@@ -205,8 +208,18 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     api_app.middleware("http")(count_requests)
-    api_app.include_router(router)
     api_app.include_router(router, prefix="/api")
+
+    public_dir = PROJECT_ROOT / "public"
+    index_file = public_dir / "index.html"
+
+    @api_app.get("/", include_in_schema=False)
+    async def frontend_index():
+        return FileResponse(index_file)
+
+    if public_dir.exists():
+        api_app.mount("/", StaticFiles(directory=public_dir, html=True), name="public")
+
     return api_app
 
 
