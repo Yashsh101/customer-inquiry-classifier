@@ -3,6 +3,10 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/index.py"
     }
