@@ -10,7 +10,6 @@ import time
 import json
 import random
 import logging
-import warnings
 import numpy as np
 import pandas as pd
 import joblib
@@ -30,26 +29,8 @@ from sklearn.metrics import (
     accuracy_score, f1_score, precision_score, recall_score
 )
 
-warnings.filterwarnings("ignore")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
-
-# ── NLTK with graceful offline fallback ──────────────────────────────────────
-_NLTK_AVAILABLE = False
-try:
-    import nltk
-    for _pkg in ("punkt", "stopwords", "wordnet", "omw-1.4", "punkt_tab"):
-        try:
-            nltk.download(_pkg, quiet=True)
-        except Exception:
-            pass
-    from nltk.corpus import stopwords as _nltk_sw
-    from nltk.tokenize import word_tokenize as _nltk_tokenize
-    from nltk.stem import WordNetLemmatizer as _WNL
-    _nltk_sw.words("english")
-    _NLTK_AVAILABLE = True
-except Exception:
-    pass
 
 _BUILTIN_STOPWORDS = {
     "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours",
@@ -182,27 +163,15 @@ class OpenAILLMFallback:
 
 class TextPreprocessor:
     def __init__(self):
-        if _NLTK_AVAILABLE:
-            self._lemmatizer = _WNL()
-            self._stop_words = set(_nltk_sw.words("english"))
-        else:
-            self._lemmatizer = None
-            self._stop_words = _BUILTIN_STOPWORDS
+        self._stop_words = _BUILTIN_STOPWORDS
 
     def _lemmatize(self, token: str) -> str:
-        if self._lemmatizer:
-            return self._lemmatizer.lemmatize(token)
         for suffix in ("ing", "tion", "ness", "ment", "ed", "er", "es", "s"):
             if token.endswith(suffix) and len(token) - len(suffix) > 3:
                 return token[: -len(suffix)]
         return token
 
     def _tokenize(self, text: str) -> list:
-        if _NLTK_AVAILABLE:
-            try:
-                return _nltk_tokenize(text)
-            except Exception:
-                pass
         return text.split()
 
     def clean(self, text: str) -> str:

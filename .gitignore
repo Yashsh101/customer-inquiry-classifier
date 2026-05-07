@@ -1,4 +1,6 @@
 .venv/
+venv/
+venv*/
 __pycache__/
 .pytest_cache/
 .mypy_cache/
@@ -17,4 +19,4 @@ Thumbs.db
 build/
 dist/
 *.egg-info/
-.streamlit/secrets.toml
+.vercel/

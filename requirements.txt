@@ -1,11 +1,7 @@
 fastapi==0.111.0
-uvicorn[standard]==0.29.0
+uvicorn==0.29.0
 pydantic==2.7.1
 scikit-learn==1.5.0
-numpy
-pandas
-joblib
-streamlit
-plotly
-requests
-pytest
+numpy==1.26.4
+pandas==2.2.2
+joblib==1.4.2

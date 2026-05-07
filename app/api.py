@@ -1,7 +1,4 @@
-"""
-Customer Inquiry Classifier — FastAPI REST API
-Endpoints: /predict  /predict/batch  /health  /metrics  /categories
-"""
+"""FastAPI REST API for the Customer Inquiry Classifier."""
 
 from __future__ import annotations
 import os
@@ -10,7 +7,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import APIRouter, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 
@@ -66,19 +63,7 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down.")
 
 
-app = FastAPI(
-    title="Customer Inquiry Classifier API",
-    description="Production-grade NLP routing API with confidence-based decisioning and optional LLM fallback",
-    version="3.0.0",
-    lifespan=lifespan,
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+router = APIRouter()
 
 
 class PredictRequest(BaseModel):
@@ -113,14 +98,13 @@ class PredictResponse(BaseModel):
     llm_explanation: Optional[str] = None
 
 
-@app.middleware("http")
 async def count_requests(request: Request, call_next):
     global _request_count
     _request_count += 1
     return await call_next(request)
 
 
-@app.get("/health", tags=["System"])
+@router.get("/health", tags=["System"])
 async def health():
     return {
         "status": "ok",
@@ -131,7 +115,7 @@ async def health():
     }
 
 
-@app.get("/metrics", tags=["System"])
+@router.get("/metrics", tags=["System"])
 async def metrics():
     if clf is None:
         raise HTTPException(503, "Model not ready")
@@ -142,12 +126,12 @@ async def metrics():
     }
 
 
-@app.get("/categories", tags=["Info"])
+@router.get("/categories", tags=["Info"])
 async def categories():
     return {"categories": CATEGORY_LABELS}
 
 
-@app.post("/predict", response_model=PredictResponse, tags=["Inference"])
+@router.post("/predict", response_model=PredictResponse, tags=["Inference"])
 async def predict(req: PredictRequest):
     if clf is None or not clf.is_trained:
         raise HTTPException(503, "Model not ready — please retry in a moment")
@@ -176,7 +160,7 @@ async def predict(req: PredictRequest):
     )
 
 
-@app.post("/predict/batch", tags=["Inference"])
+@router.post("/predict/batch", tags=["Inference"])
 async def predict_batch(req: BatchRequest):
     if clf is None or not clf.is_trained:
         raise HTTPException(503, "Model not ready")
@@ -205,3 +189,25 @@ async def predict_batch(req: BatchRequest):
             for r in results
         ]
     }
+
+
+def create_app() -> FastAPI:
+    api_app = FastAPI(
+        title="Customer Inquiry Classifier API",
+        description="NLP routing API with confidence-based decisioning and optional LLM fallback",
+        version="4.0.0",
+        lifespan=lifespan,
+    )
+    api_app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    api_app.middleware("http")(count_requests)
+    api_app.include_router(router)
+    api_app.include_router(router, prefix="/api")
+    return api_app
+
+
+app = create_app()

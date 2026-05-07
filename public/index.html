@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer Inquiry Classifier</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="intro">
+        <div>
+          <p class="eyebrow">FastAPI + ML routing</p>
+          <h1>Customer Inquiry Classifier</h1>
+          <p class="lede">
+            Classify support messages, inspect confidence, and route high-certainty tickets to the right queue.
+          </p>
+        </div>
+        <div class="status" id="healthStatus">Checking API...</div>
+      </section>
+
+      <section class="workspace">
+        <form class="panel input-panel" id="singleForm">
+          <div class="panel-head">
+            <div>
+              <h2>Single Inquiry</h2>
+              <p>Paste a customer message and classify it in real time.</p>
+            </div>
+            <button type="submit" id="classifyBtn">Classify</button>
+          </div>
+          <textarea
+            id="inquiryText"
+            maxlength="2000"
+            placeholder="I was charged twice this month and the app keeps crashing when I try to request a refund."
+          ></textarea>
+          <p class="hint">3-2000 characters. Low-confidence cases are flagged for review.</p>
+        </form>
+
+        <section class="panel result-panel" aria-live="polite">
+          <div class="panel-head">
+            <div>
+              <h2>Result</h2>
+              <p>Prediction, confidence, routing decision, and top signals.</p>
+            </div>
+          </div>
+          <div id="singleResult" class="empty">Results will appear here after classification.</div>
+        </section>
+      </section>
+
+      <section class="panel batch-panel">
+        <div class="panel-head">
+          <div>
+            <h2>Batch Analysis</h2>
+            <p>One inquiry per line, up to 50 messages.</p>
+          </div>
+          <button type="button" id="batchBtn">Classify All</button>
+        </div>
+        <textarea id="batchText" placeholder="My bill is incorrect&#10;The app crashes on login&#10;Where is my package?"></textarea>
+        <div id="batchResult" class="table-wrap"></div>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>
