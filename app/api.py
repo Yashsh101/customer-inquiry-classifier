@@ -9,7 +9,6 @@ from typing import Optional
 
 from fastapi import APIRouter, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
@@ -211,10 +210,6 @@ def create_app() -> FastAPI:
     api_app.include_router(router, prefix="/api")
 
     public_dir = PROJECT_ROOT / "public"
-
-    @api_app.get("/", include_in_schema=False)
-    async def frontend_index():
-        return RedirectResponse(url="/index.html", status_code=307)
 
     if public_dir.exists():
         api_app.mount("/", StaticFiles(directory=public_dir, html=True), name="public")
