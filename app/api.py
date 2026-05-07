@@ -9,6 +9,7 @@ from typing import Optional
 
 from fastapi import APIRouter, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
@@ -22,6 +23,103 @@ from app.classifier import (
 )
 
 logger = logging.getLogger(__name__)
+
+FRONTEND_HTML = """<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer Classifier Ops</title>
+    <meta
+      name="description"
+      content="A production-ready customer inquiry classifier with FastAPI, Vercel, and confidence-based ML routing."
+    />
+    <link rel="canonical" href="https://customer-inquiry-classifier.vercel.app/" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="ambient"></div>
+    <main class="shell">
+      <nav class="topbar" aria-label="Project">
+        <div class="brand">
+          <span class="brand-mark">CI</span>
+          <span>Classifier Ops</span>
+        </div>
+        <a class="live-link" href="/api/health">API status</a>
+      </nav>
+
+      <section class="intro">
+        <div>
+          <p class="eyebrow">FastAPI + Vercel + ML routing</p>
+          <h1>Customer Inquiry Classifier</h1>
+          <p class="lede">
+            A production-style triage console for classifying support messages, reading model confidence,
+            and routing high-certainty tickets to the right team.
+          </p>
+        </div>
+        <div class="status" id="healthStatus">Checking API...</div>
+      </section>
+
+      <section class="stats" aria-label="Model highlights">
+        <div><span>7</span><p>support categories</p></div>
+        <div><span>&lt;1s</span><p>typical inference</p></div>
+        <div><span>ML</span><p>confidence routing</p></div>
+        <div><span>Vercel</span><p>serverless deploy</p></div>
+      </section>
+
+      <section class="workspace">
+        <form class="panel input-panel" id="singleForm">
+          <div class="panel-head">
+            <div>
+              <h2>Single Inquiry</h2>
+              <p>Paste a customer message and classify it in real time.</p>
+            </div>
+            <button type="submit" id="classifyBtn">Classify</button>
+          </div>
+          <textarea
+            id="inquiryText"
+            maxlength="2000"
+            placeholder="I was charged twice this month and the app keeps crashing when I try to request a refund."
+          ></textarea>
+          <div class="samples" aria-label="Sample inquiries">
+            <button type="button" class="sample" data-sample="I was charged twice this month and need a refund immediately.">Billing</button>
+            <button type="button" class="sample" data-sample="The mobile app crashes every time I try to log in.">Technical</button>
+            <button type="button" class="sample" data-sample="My package has not arrived and tracking has not updated.">Shipping</button>
+          </div>
+          <p class="hint">3-2000 characters. Low-confidence cases are flagged for review.</p>
+        </form>
+
+        <section class="panel result-panel" aria-live="polite">
+          <div class="panel-head">
+            <div>
+              <h2>Result</h2>
+              <p>Prediction, confidence, routing decision, and top signals.</p>
+            </div>
+          </div>
+          <div id="singleResult" class="empty">
+            <span class="empty-icon">→</span>
+            <strong>Ready for a ticket.</strong>
+            <p>Classification, routing decision, latency, and signals will appear here.</p>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel batch-panel">
+        <div class="panel-head">
+          <div>
+            <h2>Batch Analysis</h2>
+            <p>One inquiry per line, up to 50 messages.</p>
+          </div>
+          <button type="button" id="batchBtn">Classify All</button>
+        </div>
+        <textarea id="batchText" placeholder="My bill is incorrect&#10;The app crashes on login&#10;Where is my package?"></textarea>
+        <div id="batchResult" class="table-wrap"></div>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>
+"""
 
 clf: Optional[CustomerInquiryClassifier] = None
 llm_fallback: Optional[OpenAILLMFallback] = None
@@ -210,6 +308,13 @@ def create_app() -> FastAPI:
     api_app.include_router(router, prefix="/api")
 
     public_dir = PROJECT_ROOT / "public"
+
+    @api_app.get("/", response_class=HTMLResponse, include_in_schema=False)
+    async def frontend_index():
+        index_file = public_dir / "index.html"
+        if index_file.exists():
+            return HTMLResponse(index_file.read_text(encoding="utf-8"))
+        return HTMLResponse(FRONTEND_HTML)
 
     if public_dir.exists():
         api_app.mount("/", StaticFiles(directory=public_dir, html=True), name="public")
