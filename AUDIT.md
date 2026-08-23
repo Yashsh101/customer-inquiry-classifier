@@ -1,7 +1,7 @@
 # Repository Audit: customer-inquiry-classifier
 
-**Audit date:** 2026-08-23  
-**Repository path:** `/workspace/customer-inquiry-classifier`  
+**Audit date:** 2026-08-23
+**Repository path:** `/workspace/customer-inquiry-classifier`
 **Branch state at audit:** cloned default branch; no main-branch push performed.
 
 ## Score
@@ -15,31 +15,40 @@
 | README.md | present |
 | requirements.txt | present |
 | package.json | not present |
-| Existing test command | `python3 -m pytest -q tests/` |
-| Test result | **PASS** — 19 passed, 0 failed |
-| Lint | **PASS** — ruff clean with repository CI flags |
+| Existing test command | `python3 -m pytest -q` |
+| Test result | **PASS** — passed=19; failed=0; skipped=0 |
 | Dockerfile | present |
-| CI/CD workflows | `.github/workflows/ci.yml` |
+| CI/CD workflows | .github/workflows/ci.yml |
 | Type hints | detected |
 | FastAPI detected | yes |
 | Pydantic models/imports | detected |
 | `.env.example` | present |
-| Possible hardcoded secrets | none matched the audit pattern |
+| Possible hardcoded secrets | none matched audit pattern |
 | API error handling | detected |
 
 ## Findings
 
-The initial test attempt failed during collection because the audit environment had not installed the repository’s declared dependencies, including `joblib`. After installing the pinned requirements, the existing suite passed in full. No source-code repair was required for this repository.
+- No high-confidence issue was detected by the automated checks.
 
-The repository’s existing CI already installs dependencies, runs ruff, compiles the application, and runs the test suite. The Dockerfile and model artifact are present. The existing repository-level CORS and deployment configuration should remain subject to the project’s separate security review, but no change is made in this audit branch because the observed CI and functional checks are green.
-
-## Verification
+## Test output
 
 ```text
-ruff check app api tests --ignore E501: PASS
-pytest tests/: 19 passed, 6 warnings, 0 failed
+...................                                                      [100%]
+=============================== warnings summary ===============================
+tests/test_classifier.py::TestClassifier::test_train_returns_metrics
+tests/test_classifier.py::TestClassifier::test_train_returns_metrics
+tests/test_classifier.py::TestClassifier::test_train_returns_metrics
+tests/test_classifier.py::TestClassifier::test_train_returns_metrics
+tests/test_classifier.py::TestClassifier::test_train_returns_metrics
+tests/test_classifier.py::TestClassifier::test_train_returns_metrics
+  /usr/local/lib/python3.12/dist-packages/sklearn/linear_model/_logistic.py:455: DeprecationWarning: scipy.optimize: The `disp` and `iprint` options of the L-BFGS-B solver are deprecated and will be removed in SciPy 1.18.0.
+    opt_res = optimize.minimize(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+19 passed, 6 warnings in 3.15s
+
 ```
 
 ## Fix decision
 
-**No code fix required.** This repository is ready for an audit-only pull request containing this report. The branch will not modify `.env` files, delete tests, change architecture, or push to `main`.
+This audit is evidence for the next phase. Fixes must remain narrow, preserve architecture, never touch `.env` files, and must be verified before any branch push. If an issue requires an architectural decision, the repository must be skipped and recorded in `MASTER_LOG.md`.
