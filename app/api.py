@@ -32,7 +32,7 @@ FRONTEND_HTML = """<!doctype html>
     <title>Customer Classifier Ops</title>
     <meta
       name="description"
-      content="A production-ready customer inquiry classifier with FastAPI, Vercel, and confidence-based ML routing."
+      content="A customer inquiry classifier with FastAPI, Vercel, and confidence-based ML routing."
     />
     <link rel="canonical" href="https://customer-inquiry-classifier.vercel.app/" />
     <link rel="stylesheet" href="/styles.css" />
@@ -53,7 +53,7 @@ FRONTEND_HTML = """<!doctype html>
           <p class="eyebrow">FastAPI + Vercel + ML routing</p>
           <h1>Customer Inquiry Classifier</h1>
           <p class="lede">
-            A production-style triage console for classifying support messages, reading model confidence,
+            A triage console for classifying support messages, reading model confidence,
             and routing high-certainty tickets to the right team.
           </p>
         </div>

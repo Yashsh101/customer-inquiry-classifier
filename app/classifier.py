@@ -1,5 +1,5 @@
 """
-Customer Inquiry Classifier — Production ML Core
+Customer Inquiry Classifier — ML Core
 Author: Yash Sharma
 Architecture: TF-IDF Ensemble + Calibrated Probabilities + Confidence Routing + Optional LLM Fallback
 """
@@ -360,7 +360,7 @@ class DataGenerator:
 
 
 class CustomerInquiryClassifier:
-    """Production-grade customer inquiry classifier with confidence routing and optional LLM fallback."""
+    """Customer inquiry classifier with confidence routing and optional LLM fallback."""
 
     def __init__(self, random_state: int = 42):
         self.random_state = random_state
