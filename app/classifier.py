@@ -4,30 +4,34 @@ Author: Yash Sharma
 Architecture: TF-IDF Ensemble + Calibrated Probabilities + Confidence Routing + Optional LLM Fallback
 """
 
+import json
+import logging
 import os
+import random
 import re
 import time
-import json
-import random
-import logging
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import ClassVar
+
+import joblib
 import numpy as np
 import pandas as pd
-import joblib
-from pathlib import Path
-from dataclasses import dataclass, field
-from typing import Optional
-
-from sklearn.pipeline import Pipeline
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.svm import LinearSVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import VotingClassifier
 from sklearn.calibration import CalibratedClassifierCV
-from sklearn.model_selection import train_test_split, StratifiedKFold, cross_validate
+from sklearn.ensemble import VotingClassifier
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
-    classification_report, confusion_matrix,
-    accuracy_score, f1_score, precision_score, recall_score
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
 )
+from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.svm import LinearSVC
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -100,14 +104,14 @@ class PredictionResult:
     confidence_threshold: float = 0.75
     final_category: str = ""
     llm_fallback_used: bool = False
-    llm_prediction: Optional[str] = None
-    llm_explanation: Optional[str] = None
+    llm_prediction: str | None = None
+    llm_explanation: str | None = None
 
 
 class OpenAILLMFallback:
     """Optional LLM fallback/explanation layer using OpenAI Responses API."""
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4.1-mini"):
+    def __init__(self, api_key: str | None = None, model: str = "gpt-4.1-mini"):
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         self.model = model
         self.client = None
@@ -117,7 +121,7 @@ class OpenAILLMFallback:
         try:
             from openai import OpenAI
             self.client = OpenAI(api_key=self.api_key)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - optional fallback must not break classification
             logger.warning("OpenAI client unavailable: %s", exc)
             self.client = None
 
@@ -125,7 +129,7 @@ class OpenAILLMFallback:
     def is_available(self) -> bool:
         return self.client is not None
 
-    def classify(self, text: str) -> Optional[dict]:
+    def classify(self, text: str) -> dict | None:
         if not self.is_available:
             return None
 
@@ -156,7 +160,7 @@ class OpenAILLMFallback:
                 "confidence": float(data.get("confidence", 0.5)),
                 "explanation": str(data.get("explanation", ""))[:220],
             }
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - optional fallback must not break classification
             logger.warning("LLM fallback failed: %s", exc)
             return None
 
@@ -189,7 +193,7 @@ class TextPreprocessor:
 
 
 class DataGenerator:
-    TEMPLATES = {
+    TEMPLATES: ClassVar[dict[str, list[str]]] = {
         "billing": [
             "I have a question about my bill for this month",
             "Why was I charged twice for the same service",
@@ -262,7 +266,7 @@ class DataGenerator:
         ],
     }
 
-    NOISY_MISSPELLINGS = {
+    NOISY_MISSPELLINGS: ClassVar[dict[str, str]] = {
         "refund": "refnd",
         "invoice": "invioce",
         "account": "acount",
@@ -274,7 +278,7 @@ class DataGenerator:
         "application": "aplication",
     }
 
-    TONES = {
+    TONES: ClassVar[dict[str, list[str]]] = {
         "angry": [
             "This is unacceptable.",
             "I am extremely frustrated right now.",
@@ -290,7 +294,7 @@ class DataGenerator:
         "neutral": [""],
     }
 
-    HINGLISH_SNIPPETS = [
+    HINGLISH_SNIPPETS: ClassVar[list[str]] = [
         "pls jaldi help karo",
         "mera order abhi tak nahi aaya",
         "refund kab milega",
@@ -298,14 +302,14 @@ class DataGenerator:
         "billing me extra charge dikha raha hai",
     ]
 
-    MULTI_INTENT_FRAGMENTS = [
+    MULTI_INTENT_FRAGMENTS: ClassVar[list[str]] = [
         "Also I need to update my email.",
         "Also tell me where my shipment is.",
         "And I may cancel if this is not resolved.",
         "Also share refund timeline.",
     ]
 
-    SHORT_QUERIES = [
+    SHORT_QUERIES: ClassVar[list[str]] = [
         "refund??",
         "charged twice",
         "app crash",
@@ -365,7 +369,7 @@ class CustomerInquiryClassifier:
     def __init__(self, random_state: int = 42):
         self.random_state = random_state
         self.preprocessor = TextPreprocessor()
-        self.pipeline: Optional[Pipeline] = None
+        self.pipeline: Pipeline | None = None
         self.is_trained = False
         self.train_metrics: dict = {}
 
@@ -448,7 +452,7 @@ class CustomerInquiryClassifier:
         self,
         text: str,
         confidence_threshold: float = 0.75,
-        llm_fallback: Optional[OpenAILLMFallback] = None,
+        llm_fallback: OpenAILLMFallback | None = None,
         compare_with_llm: bool = False,
     ) -> PredictionResult:
         if not self.is_trained:
@@ -513,7 +517,7 @@ class CustomerInquiryClassifier:
         self,
         texts: list[str],
         confidence_threshold: float = 0.75,
-        llm_fallback: Optional[OpenAILLMFallback] = None,
+        llm_fallback: OpenAILLMFallback | None = None,
         compare_with_llm: bool = False,
     ) -> list[PredictionResult]:
         return [

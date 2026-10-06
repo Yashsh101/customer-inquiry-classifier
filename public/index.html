@@ -6,7 +6,7 @@
     <title>Customer Classifier Ops</title>
     <meta
       name="description"
-      content="A production-ready customer inquiry classifier with FastAPI, Vercel, and confidence-based ML routing."
+      content="A confidence-aware customer inquiry classifier with FastAPI, Vercel, and ML routing."
     />
     <link rel="canonical" href="https://customer-inquiry-classifier.vercel.app/" />
     <link rel="stylesheet" href="/styles.css" />
@@ -19,7 +19,7 @@
           <span class="brand-mark">CI</span>
           <span>Classifier Ops</span>
         </div>
-        <a class="live-link" href="/api/health">API status</a>
+        <span class="live-link">API status</span>
       </nav>
 
       <section class="intro">
@@ -36,7 +36,7 @@
 
       <section class="stats" aria-label="Model highlights">
         <div><span>7</span><p>support categories</p></div>
-        <div><span>&lt;1s</span><p>typical inference</p></div>
+        <div><span>Review</span><p>low-confidence routing</p></div>
         <div><span>ML</span><p>confidence routing</p></div>
         <div><span>Vercel</span><p>serverless deploy</p></div>
       </section>
