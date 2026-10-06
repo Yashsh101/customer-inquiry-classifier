@@ -4,12 +4,17 @@ Run: pytest tests/ -v
 """
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pytest
+
 from app.classifier import (
-    CustomerInquiryClassifier, DataGenerator, TextPreprocessor,
-    CATEGORIES, CAT2ID,
+    CAT2ID,
+    CATEGORIES,
+    CustomerInquiryClassifier,
+    DataGenerator,
+    TextPreprocessor,
 )
 
 
