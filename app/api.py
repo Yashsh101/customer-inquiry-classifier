@@ -45,7 +45,7 @@ FRONTEND_HTML = """<!doctype html>
           <span class="brand-mark">CI</span>
           <span>Classifier Ops</span>
         </div>
-        <a class="live-link" href="/api/health">API status</a>
+        <span class="live-link">API status</span>
       </nav>
 
       <section class="intro">
@@ -62,7 +62,7 @@ FRONTEND_HTML = """<!doctype html>
 
       <section class="stats" aria-label="Model highlights">
         <div><span>7</span><p>support categories</p></div>
-        <div><span>&lt;1s</span><p>typical inference</p></div>
+        <div><span>Review</span><p>low-confidence routing</p></div>
         <div><span>ML</span><p>confidence routing</p></div>
         <div><span>Vercel</span><p>serverless deploy</p></div>
       </section>

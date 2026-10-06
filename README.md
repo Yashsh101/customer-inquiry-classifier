@@ -13,7 +13,7 @@ Support teams need a transparent first routing decision, not an opaque auto-reso
 
 **Live URL:** [customer-inquiry-classifier.vercel.app](https://customer-inquiry-classifier.vercel.app/)
 
-The public health route was checked during the audit and returned successfully. Verify the live UI and model status before using the URL as a portfolio demo; no production SLA or real-customer accuracy claim is made.
+The demo homepage currently responds successfully. The API health route is pending verification; verify the live UI and model status before using the URL as a portfolio demo. No production SLA or real-customer accuracy claim is made.
 
 ## Architecture
 
@@ -112,7 +112,7 @@ CI runs the same dependency install, lint, compile, and test gates. Current loca
 
 ## Deployment status
 
-Vercel configuration is checked in (`vercel.json`, `api/index.py`, and `public/`). The public health endpoint was reachable during audit. Deployment configuration is present, but production capacity, monitoring, real-data quality, and SLA claims are **pending verification**.
+Vercel configuration is checked in (`vercel.json`, `api/index.py`, and `public/`). The demo homepage was reachable during audit; the API health endpoint returned a non-200 response and is **pending verification**. Deployment configuration is present, but capacity, monitoring, real-data quality, and SLA claims are **pending verification**.
 
 ## Roadmap
 
